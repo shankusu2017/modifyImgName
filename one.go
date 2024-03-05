@@ -14,10 +14,6 @@ var (
 	md52file map[string]string
 )
 
-func rmFile(filePath string) {
-	os.Remove(filePath)
-}
-
 func getFileMd5(filePath string) (string, bool) {
 	pFile, err := os.Open(filePath)
 	if err != nil {
@@ -56,11 +52,10 @@ func calMD5(path string) {
 				} else {
 					if len(path0) > len(path1) {
 						md52file[md5] = path1
-						rmFile(path0)
+						rmFile(path0, path1)
 					} else {
-						rmFile(path1)
+						rmFile(path1, path0)
 					}
-					log.Printf("%s 和 %s 内容重复\n", path1, path0)
 				}
 			}
 		}

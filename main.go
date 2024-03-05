@@ -7,15 +7,6 @@ import (
 	"strings"
 )
 
-func hdlRename(dir, oName, nName string) {
-	if oName == nName {
-		return
-	}
-	oPath := fmt.Sprintf("%s\\%s", dir, oName)
-	nPath := fmt.Sprintf("%s\\%s", dir, nName)
-	os.Rename(oPath, nPath)
-}
-
 func hdlHead(path string) {
 	if strings.HasPrefix(path, ".") == true {
 		return
