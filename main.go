@@ -66,6 +66,7 @@ func hdlTime(path string) {
 			nName, ok = earlyTime(path, item.Name())
 			if ok {
 				hdlRename(path, name, nName)
+				continue
 			}
 		}
 	}

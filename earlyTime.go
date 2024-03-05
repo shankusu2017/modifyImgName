@@ -132,6 +132,14 @@ func earlyTime(path, str string) (string, bool) {
 			str[idx:])
 
 		return n0, true
+	} else if ok1 {
+		t0 = t1
+		n0 = fmt.Sprintf("%4d%02d%02d%02d%02d%02d%s",
+			t0.Year(), t0.Month(), t0.Day(),
+			t0.Hour(), t0.Minute(), t0.Second(),
+			str[idx:])
+
+		return n0, true
 	}
 
 	return n0, false
