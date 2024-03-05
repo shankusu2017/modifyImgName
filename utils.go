@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+var (
+	cntRname  = 0
+	cntRemove = 0
+)
+
 func hdlRename(dir, oName, nName string) {
 	if oName == nName {
 		return
@@ -17,6 +22,7 @@ func hdlRename(dir, oName, nName string) {
 	} else {
 		os.Rename(oPath, nPath)
 	}
+	cntRname++
 }
 
 func rmFile(path1, path2 string) {
@@ -25,4 +31,5 @@ func rmFile(path1, path2 string) {
 	} else {
 		os.Remove(path1)
 	}
+	cntRemove++
 }

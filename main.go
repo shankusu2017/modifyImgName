@@ -22,7 +22,7 @@ func hdlHead(path string) {
 			if strings.HasPrefix(name, ".") == true {
 				continue
 			} else {
-				hdlHead(oPath)
+				go hdlHead(oPath)
 			}
 		} else {
 			nName, ok := delHead(item.Name())
@@ -36,6 +36,20 @@ func hdlHead(path string) {
 				hdlRename(path, name, nName)
 			}
 		}
+	}
+}
+
+func doTime(path, name string) {
+	nName, ok := shotTimeJPG(path, name)
+	if ok {
+		go hdlRename(path, name, nName)
+		return
+	}
+
+	nName, ok = earlyTime(path, name)
+	if ok {
+		go hdlRename(path, name, nName)
+		return
 	}
 }
 
@@ -54,20 +68,10 @@ func hdlTime(path string) {
 			if strings.HasPrefix(name, ".") == true {
 				continue
 			} else {
-				hdlTime(oPath)
+				go hdlTime(oPath)
 			}
 		} else {
-			nName, ok := shotTimeJPG(path, item.Name())
-			if ok {
-				hdlRename(path, name, nName)
-				continue
-			}
-
-			nName, ok = earlyTime(path, item.Name())
-			if ok {
-				hdlRename(path, name, nName)
-				continue
-			}
+			go doTime(path, name)
 		}
 	}
 }
@@ -84,8 +88,9 @@ func init() {
 func main() {
 	pwd := "D:\\img\\unsync\\24"
 	pwd, _ = os.Getwd()
-	pwd = fmt.Sprintf("%s\\test", pwd)
+	pwd = fmt.Sprintf("X:\\img")
 	hdlHead(pwd)
 	hdlTime(pwd)
 	hdlOne(pwd)
+	log.Printf("cntRname: %d, cntRemove: %d\n", cntRname, cntRemove)
 }

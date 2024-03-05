@@ -7,10 +7,17 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
+)
+
+var (
+	mtx sync.Mutex
 )
 
 func shotTimeJPG(path, str string) (string, bool) {
 	allName := fmt.Sprintf("%s//%s", path, str)
+	mtx.Lock()
+	defer mtx.Unlock()
 
 	if strings.HasSuffix(str, ".jpg") == false {
 		if strings.HasSuffix(str, ".JPG") == false {
