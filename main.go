@@ -42,13 +42,13 @@ func hdlHead(path string) {
 func doTime(path, name string) {
 	nName, ok := shotTimeJPG(path, name)
 	if ok {
-		go hdlRename(path, name, nName)
+		hdlRename(path, name, nName)
 		return
 	}
 
 	nName, ok = earlyTime(path, name)
 	if ok {
-		go hdlRename(path, name, nName)
+		hdlRename(path, name, nName)
 		return
 	}
 }
@@ -68,10 +68,10 @@ func hdlTime(path string) {
 			if strings.HasPrefix(name, ".") == true {
 				continue
 			} else {
-				go hdlTime(oPath)
+				hdlTime(oPath)
 			}
 		} else {
-			go doTime(path, name)
+			doTime(path, name)
 		}
 	}
 }
@@ -89,8 +89,8 @@ func main() {
 	pwd := "D:\\img\\unsync\\24"
 	pwd, _ = os.Getwd()
 	pwd = fmt.Sprintf("X:\\img")
+	hdlOne(pwd)
 	hdlHead(pwd)
 	hdlTime(pwd)
-	hdlOne(pwd)
 	log.Printf("cntRname: %d, cntRemove: %d\n", cntRname, cntRemove)
 }
