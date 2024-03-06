@@ -16,6 +16,7 @@ var (
 	md5Times      map[string]int // 文件内容对应的md5出现的次数
 	mtxMD5TIMES   sync.RWMutex
 	wgMD5         sync.WaitGroup
+	routinueFree  chan bool
 )
 
 func addMD5Times(file, md5 string) int {
@@ -31,7 +32,10 @@ func addMD5Times(file, md5 string) int {
 }
 
 func getFileMd5(filePath string) {
-	defer wgMD5.Done()
+	defer func() {
+		<-routinueFree
+		wgMD5.Done()
+	}()
 	pFile, err := os.Open(filePath)
 	if err != nil {
 		return
@@ -62,6 +66,7 @@ func calMD5(path string) {
 				calMD5(path1)
 			}
 		} else {
+			routinueFree <- true
 			wgMD5.Add(1)
 			go getFileMd5(path1)
 		}
@@ -69,7 +74,10 @@ func calMD5(path string) {
 }
 
 func delFile(path string, times int) {
-	defer wgMD5.Done()
+	defer func() {
+		<-routinueFree
+		wgMD5.Done()
+	}()
 	if times <= 1 {
 		return
 	}
@@ -80,6 +88,7 @@ func delFile(path string, times int) {
 func rmSame() {
 	for k, v := range file2md5times {
 		wgMD5.Add(1)
+		routinueFree <- true
 		go delFile(k, v)
 	}
 }
@@ -87,6 +96,8 @@ func rmSame() {
 func hdlSame(path string) {
 	md5Times = make(map[string]int, 65536)
 	file2md5times = make(map[string]int, 65536)
+	routinueFree = make(chan bool, ROUTINUSCNT)
+
 	calMD5(path)
 	wgMD5.Wait()
 	rmSame()

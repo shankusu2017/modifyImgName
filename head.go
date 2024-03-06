@@ -12,7 +12,7 @@ type nameFormat struct {
 }
 
 var (
-	formats [3]nameFormat
+	formats [4]nameFormat
 )
 
 func init() {
@@ -22,6 +22,8 @@ func init() {
 	formats[1].Name = "20240226153302"
 	formats[2].Head = "export"
 	formats[2].Name = "1709625041"
+	formats[3].Head = "mmexport"
+	formats[3].Name = "1709625041"
 }
 
 func delHead(str string) (string, bool) {

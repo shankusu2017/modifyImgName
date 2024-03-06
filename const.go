@@ -1,5 +1,6 @@
 package main
 
 const (
-	DEBUG_MODEL = true
+	DEBUG_MODEL = false
+	ROUTINUSCNT = 64
 )

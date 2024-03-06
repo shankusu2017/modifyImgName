@@ -28,6 +28,9 @@ func hdlRename(dir, oName, nName string) {
 		os.Rename(oPath, nPath)
 	}
 	cntRname++
+	if cntRname%100 == 0 {
+		log.Printf("cntRname: %d\n", cntRname)
+	}
 }
 
 func rmFile(path string) {
@@ -40,4 +43,7 @@ func rmFile(path string) {
 		os.Remove(path)
 	}
 	cntRemove++
+	if cntRemove%100 == 0 {
+		log.Printf("cntRemove: %d\n", cntRemove)
+	}
 }

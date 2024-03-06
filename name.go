@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	wgName sync.WaitGroup
+	wgName           sync.WaitGroup
+	routinueFreeName chan bool
 )
 
 func hdlDir(path string) {
@@ -28,13 +29,17 @@ func hdlDir(path string) {
 			}
 		} else {
 			wgName.Add(1)
+			routinueFreeName <- true
 			go hdlFile(path, fileName)
 		}
 	}
 }
 
 func hdlFile(path, name string) {
-	defer wgName.Done()
+	defer func() {
+		wgName.Done()
+		<-routinueFreeName
+	}()
 	// 去掉固定的前缀
 	nName, ok := delHead(name)
 	if ok {
@@ -60,6 +65,8 @@ func hdlFile(path, name string) {
 }
 
 func hdlName(path string) {
+	routinueFreeName = make(chan bool, ROUTINUSCNT)
+
 	hdlDir(path)
 	wgName.Wait()
 }
