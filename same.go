@@ -74,22 +74,22 @@ func delFile(path string, times int) {
 		return
 	}
 
-	os.Remove(path)
+	rmFile(path)
 }
 
-func hdlSame() {
+func rmSame() {
 	for k, v := range file2md5times {
 		wgMD5.Add(1)
 		go delFile(k, v)
 	}
 }
 
-func hdlOne(path string) {
+func hdlSame(path string) {
 	md5Times = make(map[string]int, 65536)
 	file2md5times = make(map[string]int, 65536)
 	calMD5(path)
 	wgMD5.Wait()
-	hdlSame()
+	rmSame()
 	wgMD5.Wait()
 	log.Printf("md5 cal done!\n")
 }

@@ -2,12 +2,67 @@ package main
 
 import (
 	"fmt"
+	"github.com/rwcarlsen/goexif/exif"
+	"github.com/rwcarlsen/goexif/mknote"
+	"log"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
+
+var (
+	exifMtx sync.Mutex
+)
+
+func shotTimeJPG(path, str string) (string, bool) {
+	allName := fmt.Sprintf("%s//%s", path, str)
+	exifMtx.Lock()
+	defer exifMtx.Unlock()
+
+	if strings.HasSuffix(str, ".jpg") == false {
+		if strings.HasSuffix(str, ".JPG") == false {
+			return "", false
+		}
+	}
+
+	sufIdx := strings.LastIndex(str, ".")
+
+	f, err := os.Open(allName)
+	if err != nil {
+		log.Printf(err.Error())
+		return "", false
+	}
+	defer f.Close()
+	exif.RegisterParsers(mknote.All...)
+
+	x, err := exif.Decode(f)
+	if err != nil {
+		log.Printf(err.Error())
+		return "", false
+	}
+
+	//camModel, _ := x.Get(exif.Model) // normally, don't ignore errors!
+	//fmt.Println(camModel.StringVal())
+	//
+	//focal, _ := x.Get(exif.FocalLength)
+	//numer, denom, _ := focal.Rat2(0) // retrieve first (only) rat. value
+	//fmt.Printf("%v/%v", numer, denom)
+
+	// Two convenience functions exist for date/time taken and GPS coords:
+	tm, _ := x.DateTime() // 拍摄时间
+	if tm.Year() <= 2000 {
+		return "", false
+	}
+
+	nName := fmt.Sprintf("%4d%02d%02d%02d%02d%02d%s",
+		tm.Year(), tm.Month(), tm.Day(),
+		tm.Hour(), tm.Minute(), tm.Second(), str[sufIdx:])
+
+	return nName, true
+}
 
 // 从文件系统数据中能读到的最早时间
 func fileSysTime(path, str string) (time.Time, bool) {
@@ -46,7 +101,6 @@ func fileSysTime(path, str string) (time.Time, bool) {
 	}
 
 	return tNow, done
-
 }
 
 func fileNameTime(path, str string) (time.Time, bool) {

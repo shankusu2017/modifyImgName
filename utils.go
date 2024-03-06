@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 var (
 	cntRname  = 0
 	cntRemove = 0
+	cntMtx    sync.RWMutex
 )
 
 func hdlRename(dir, oName, nName string) {
+	cntMtx.Lock()
+	defer cntMtx.Unlock()
+
 	if oName == nName {
 		return
 	}
@@ -25,11 +30,14 @@ func hdlRename(dir, oName, nName string) {
 	cntRname++
 }
 
-func rmFile(path1, path2 string) {
+func rmFile(path string) {
+	cntMtx.Lock()
+	defer cntMtx.Unlock()
+
 	if DEBUG_MODEL {
-		log.Printf("remove  %s  samewith----> %s\n", path1, path2)
+		log.Printf("remove  %s \n", path)
 	} else {
-		os.Remove(path1)
+		os.Remove(path)
 	}
 	cntRemove++
 }
