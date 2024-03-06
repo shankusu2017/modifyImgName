@@ -15,6 +15,15 @@ var (
 	formats [3]nameFormat
 )
 
+func init() {
+	formats[0].Head = "微信图片_"
+	formats[0].Name = "20240226153256"
+	formats[1].Head = "WeChat_"
+	formats[1].Name = "20240226153302"
+	formats[2].Head = "export"
+	formats[2].Name = "1709625041"
+}
+
 func delHead(str string) (string, bool) {
 	for _, format := range formats {
 		ok := strings.HasPrefix(str, format.Head)
