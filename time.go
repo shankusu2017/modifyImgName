@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/rwcarlsen/goexif/exif"
-	"github.com/rwcarlsen/goexif/mknote"
 	"log"
 	"os"
 	"strconv"
@@ -17,8 +16,69 @@ var (
 	exifMtx sync.Mutex
 )
 
+func isValidData(year, month, day, hour, min, sec int) bool {
+	if (year < 2000 || year > 3000) ||
+		(month < 1 || month > 12) ||
+		(day < 1 || day > 31) ||
+		(hour < 0 || hour > 23) ||
+		(min < 0 || min > 59) ||
+		(sec < 0 || sec > 59) {
+		return false
+	}
+
+	return true
+}
+
+// IMG_20230204_180346.jpg
+// VID_20230101_173306.mp4
+func huaweiPhoneTime(path, name string) (string, bool) {
+	tType := ""
+	if strings.HasPrefix(name, "IMG_") && strings.HasSuffix(name, ".jpg") {
+		tType = ".jpg"
+	} else if strings.HasPrefix(name, "VID_") && strings.HasSuffix(name, ".mp4") {
+		tType = ".mp4"
+	} else {
+		return "", false
+	}
+
+	if len(name) < len("VID_20230101_173306.mp4") {
+		return "", false
+	}
+
+	yStr := name[4:8]
+	mStr := name[8:10]
+	dStr := name[10:12]
+	hStr := name[13:15]
+	minStr := name[15:17]
+	sStr := name[17:19]
+
+	yN, _ := strconv.Atoi(yStr)
+	mN, _ := strconv.Atoi(mStr)
+	dN, _ := strconv.Atoi(dStr)
+	hN, _ := strconv.Atoi(hStr)
+	minN, _ := strconv.Atoi(minStr)
+	sN, _ := strconv.Atoi(sStr)
+
+	if isValidData(yN, mN, dN, hN, minN, sN) {
+		tm := time.Date(yN, time.Month(mN), dN, hN, minN, sN, 0, time.Local)
+		nName := fmt.Sprintf("%4d%02d%02d%02d%02d%02d%s",
+			tm.Year(), tm.Month(), tm.Day(),
+			tm.Hour(), tm.Minute(), tm.Second(), tType)
+		return nName, true
+	}
+	return "", false
+}
+
 func shotTimeJPG(path, str string) (string, bool) {
 	allName := fmt.Sprintf("%s\\%s", path, str)
+
+	defer func() {
+		if p := recover(); p != nil {
+			err := fmt.Errorf("parser %s error: %v", allName, p)
+			log.Println(err.Error())
+		}
+	}()
+
 	exifMtx.Lock()
 	defer exifMtx.Unlock()
 
@@ -31,16 +91,16 @@ func shotTimeJPG(path, str string) (string, bool) {
 	sufIdx := strings.LastIndex(str, ".")
 
 	f, err := os.Open(allName)
+	defer f.Close()
 	if err != nil {
 		log.Printf(err.Error())
 		return "", false
 	}
-	defer f.Close()
-	exif.RegisterParsers(mknote.All...)
+	//exif.RegisterParsers(mknote.All...)
 
 	x, err := exif.Decode(f)
 	if err != nil {
-		log.Printf(err.Error())
+		//log.Printf(err.Error())
 		return "", false
 	}
 
@@ -142,11 +202,7 @@ func fileNameTime(path, str string) (time.Time, bool) {
 		hN, _ := strconv.Atoi(hStr)
 		minN, _ := strconv.Atoi(minStr)
 		sN, _ := strconv.Atoi(sStr)
-		if (mN < 1 || mN > 12) ||
-			(dN < 1 || dN > 31) ||
-			(hN < 0 || hN > 23) ||
-			(minN < 0 || minN > 59) ||
-			(sN < 0 || sN > 59) {
+		if isValidData(yN, mN, dN, hN, minN, sN) == false {
 			return time.Now(), false
 		}
 		nTime := time.Date(yN, time.Month(mN), dN, hN, minN, sN, 0, time.Local)

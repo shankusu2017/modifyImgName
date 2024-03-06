@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/rwcarlsen/goexif/exif"
+	"github.com/rwcarlsen/goexif/mknote"
 	"log"
 	"os"
 	"strings"
@@ -40,6 +42,9 @@ func hdlFile(path, name string) {
 		wgName.Done()
 		<-routinueFreeName
 	}()
+	if strings.HasSuffix(name, ".exe") {
+		return
+	}
 	// 去掉固定的前缀
 	nName, ok := delHead(name)
 	if ok {
@@ -52,6 +57,13 @@ func hdlFile(path, name string) {
 	}
 
 	// 尝试用时间来命令某个文件的名字
+
+	nName, ok = huaweiPhoneTime(path, name)
+	if ok == true {
+		hdlRename(path, name, nName)
+		return
+	}
+
 	nName, ok = shotTimeJPG(path, name)
 	if ok == true {
 		hdlRename(path, name, nName)
@@ -66,6 +78,7 @@ func hdlFile(path, name string) {
 
 func hdlName(path string) {
 	routinueFreeName = make(chan bool, ROUTINUSCNT)
+	exif.RegisterParsers(mknote.All...)
 
 	hdlDir(path)
 	wgName.Wait()
