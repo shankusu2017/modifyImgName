@@ -18,7 +18,7 @@ var (
 )
 
 func shotTimeJPG(path, str string) (string, bool) {
-	allName := fmt.Sprintf("%s//%s", path, str)
+	allName := fmt.Sprintf("%s\\%s", path, str)
 	exifMtx.Lock()
 	defer exifMtx.Unlock()
 
