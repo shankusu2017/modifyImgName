@@ -16,19 +16,6 @@ var (
 	exifMtx sync.Mutex
 )
 
-func isValidData(year, month, day, hour, min, sec int) bool {
-	if (year < 2000 || year > 3000) ||
-		(month < 1 || month > 12) ||
-		(day < 1 || day > 31) ||
-		(hour < 0 || hour > 23) ||
-		(min < 0 || min > 59) ||
-		(sec < 0 || sec > 59) {
-		return false
-	}
-
-	return true
-}
-
 // IMG_20230204_180346.jpg
 // VID_20230101_173306.mp4
 func huaweiPhoneTime(path, name string) (string, bool) {

@@ -31,6 +31,19 @@ func randomString(n int) string {
 	return sb.String()
 }
 
+func isValidData(year, month, day, hour, min, sec int) bool {
+	if (year < 2000 || year > 3000) ||
+		(month < 1 || month > 12) ||
+		(day < 1 || day > 31) ||
+		(hour < 0 || hour > 23) ||
+		(min < 0 || min > 59) ||
+		(sec < 0 || sec > 59) {
+		return false
+	}
+
+	return true
+}
+
 func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {

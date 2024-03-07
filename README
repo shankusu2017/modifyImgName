@@ -1,3 +1,6 @@
 ### 主要功能
 - 去除重复文件
 - 将文件名改为带时间的文件名
+
+### TODO
+- 现在的 jpg 解析代码，无法解析部分 jpg 图拍的拍摄时间， 尝试用 https://github.com/dsoprea/go-exif 的试试
