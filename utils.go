@@ -5,8 +5,10 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -42,6 +44,52 @@ func isValidData(year, month, day, hour, min, sec int) bool {
 	}
 
 	return true
+}
+
+func calDateTime(name string) (time.Time, bool) {
+	nLen := len(name)
+	if nLen != 10 && nLen != 19 {
+		return time.Now(), false
+	}
+
+	tNow := time.Now()
+	var yN, mN, dN int
+	// 固定的时间，避免每次都对同一张相片产生不同的时间戳
+	hN := 15
+	minN := 11
+	sN := 16
+
+	if nLen == 19 { //2021:01:30 23:36:27
+		yStr := name[:4]
+		mStr := name[5:7]
+		dStr := name[8:10]
+		hStr := name[11:13]
+		minStr := name[14:16]
+		sStr := name[17:19]
+
+		yN, _ = strconv.Atoi(yStr)
+		mN, _ = strconv.Atoi(mStr)
+		dN, _ = strconv.Atoi(dStr)
+		hN, _ = strconv.Atoi(hStr)
+		minN, _ = strconv.Atoi(minStr)
+		sN, _ = strconv.Atoi(sStr)
+	} else if nLen == 10 { // 2021:01:30
+		yStr := name[:4]
+		mStr := name[5:7]
+		dStr := name[8:10]
+
+		yN, _ = strconv.Atoi(yStr)
+		mN, _ = strconv.Atoi(mStr)
+		dN, _ = strconv.Atoi(dStr)
+	} else {
+		return tNow, false
+	}
+
+	if isValidData(yN, mN, dN, hN, minN, sN) {
+		return time.Date(yN, time.Month(mN), dN, hN, minN, sN, 0, time.Local), true
+	} else {
+		return tNow, false
+	}
 }
 
 func pathExists(path string) (bool, error) {
@@ -81,7 +129,46 @@ func hdlRename(dir, oName, nName string) {
 			log.Printf("rename.err(%s)  %s ----> %s\n", err.Error(), oPath, nPath)
 		}
 	}
-	//log.Printf("rename  %s ----> %s\n", oPath, nPath)
+
+	cntRname++
+	if cntRname%100 == 0 {
+		log.Printf("cntRname: %d\n", cntRname)
+	}
+}
+
+func hdlRename2Time(dir, oName string, nTime time.Time) {
+	cntMtx.Lock()
+	defer cntMtx.Unlock()
+
+	sufIdx := strings.LastIndex(oName, ".") //a.b
+	if sufIdx == -1 {
+		return
+	}
+	nName := fmt.Sprintf("%4d%02d%02d%02d%02d%02d%s",
+		nTime.Year(), nTime.Month(), nTime.Day(),
+		nTime.Hour(), nTime.Minute(), nTime.Second(), oName[sufIdx:])
+	if oName == nName {
+		return
+	}
+	oPath := fmt.Sprintf("%s\\%s", dir, oName)
+	nPath := fmt.Sprintf("%s\\%s", dir, nName)
+	if DEBUG_MODEL == false {
+		exist, err := pathExists(nPath)
+		if exist {
+			idx := strings.Index(nName, ".") //a.b
+			if idx == -1 {
+				return
+			}
+			n := nName[:idx]
+			t := nName[idx+1:]
+			nName = fmt.Sprintf("%s_%s.%s", n, randomString(8), t)
+			nPath = fmt.Sprintf("%s\\%s", dir, nName)
+		}
+		err = os.Rename(oPath, nPath)
+		if err != nil {
+			log.Printf("rename.err(%s)  %s ----> %s\n", err.Error(), oPath, nPath)
+		}
+	}
 
 	cntRname++
 	if cntRname%100 == 0 {

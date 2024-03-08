@@ -57,21 +57,31 @@ func hdlFile(path, name string) {
 	}
 
 	// 尝试用时间来命令某个文件的名字
-
-	nName, ok = huaweiPhoneTime(path, name)
-	if ok == true {
-		hdlRename(path, name, nName)
+	nTime, ok := huaweiPhoneTime(path, name)
+	if ok {
+		hdlRename2Time(path, name, nTime)
 		return
 	}
 
-	nName, ok = shotTimeJPG(path, name)
-	if ok == true {
-		hdlRename(path, name, nName)
+	// 尝试读取 jpg 格式中的时间
+	nTime, ok = shotTimeJPG(path, name)
+	if ok {
+		log.Printf("shotTimeJPG done\n")
+		hdlRename2Time(path, name, nTime)
 		return
+	} else {
+		nTime, ok = showTime2JPG(path, name)
+		if ok {
+			log.Printf("---->showTime2JPG<---- done[%s]\n", fmt.Sprintf("%s\\%s", path, name))
+			hdlRename2Time(path, name, nTime)
+			return
+		}
 	}
-	nName, ok = earlyTime(path, name)
-	if ok == true {
-		hdlRename(path, name, nName)
+	// 尝试读取文件系统中的时间和文件名中的时间（取较早的那个）
+	nTime, ok = earlyTime(path, name)
+	if ok {
+		log.Printf("earlyTime done\n")
+		hdlRename2Time(path, name, nTime)
 		return
 	}
 }
