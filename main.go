@@ -1,17 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 )
 
 func main() {
 	pwd, _ := os.Getwd()
-	pwd = fmt.Sprintf("%s\\test", pwd)
 	//path := ""
 	//name := ""
-	pwd = "D:\\img\\unsync\\24"
+	//pwd = "D:\\img\\unsync\\24"
 	//pwd = "X:\\img"
 	//pwd = "E:\\git\\modifyImgName\\test"
 

@@ -42,7 +42,9 @@ func hdlFile(path, name string) {
 		wgName.Done()
 		<-routinueFreeName
 	}()
-	if strings.HasSuffix(name, ".exe") {
+	// 仅处理特定后缀名的文件
+	if strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".JPG") || strings.HasSuffix(name, ".mp4") {
+	} else {
 		return
 	}
 	// 去掉固定的前缀
