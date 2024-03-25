@@ -57,6 +57,10 @@ func hdlFile(path, name string) {
 			hdlRename(path, name, nName)
 		}
 	}
+	// 重命名后，旧文件已经在文件系统中消失了，这里直接返回
+	if ok {
+		return
+	}
 
 	// 尝试用时间来命令某个文件的名字
 	nTime, ok := huaweiPhoneTime(path, name)
@@ -92,6 +96,11 @@ func hdlName(path string) {
 	routinueFreeName = make(chan bool, ROUTINUSCNT)
 	exif.RegisterParsers(mknote.All...)
 
-	hdlDir(path)
-	wgName.Wait()
+	// 去掉固定前缀这种操作，删除了旧文件，增加了新文件，单次处理逻辑中，无法对新文件进行进一步的时间处理
+	// 故而这里再处理一次
+	// TODO TEST
+	for times := 0; times < 2; times++ {
+		hdlDir(path)
+		wgName.Wait()
+	}
 }

@@ -7,6 +7,7 @@ import (
 
 func main() {
 	pwd, _ := os.Getwd()
+	//pwd = fmt.Sprintf("%s\\test2", pwd)
 	//path := ""
 	//name := ""
 	//pwd = "D:\\img\\unsync\\24"
