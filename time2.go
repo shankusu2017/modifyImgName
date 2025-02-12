@@ -59,10 +59,10 @@ func showTime2JPGHdl(path, name string) (retT time.Time, retF bool) {
 		return
 	}
 
+	// 有明确的 datetime
 	for _, entry := range entries {
 		if entry.TagId == 0x9004 ||
 			entry.TagId == 0x9003 ||
-			entry.TagId == 0x001d ||
 			entry.TagId == 0x0132 {
 			//fmt.Printf("IFD-PATH=[%s] ID=(0x%04x) NAME=[%s] COUNT=(%d) TYPE=[%s] VALUE=[%s]\n\n", entry.IfdPath, entry.TagId, entry.TagName, entry.UnitCount, entry.TagTypeName, entry.Formatted)
 			retTime, ok := calDateTime(entry.Formatted)
@@ -70,9 +70,26 @@ func showTime2JPGHdl(path, name string) (retT time.Time, retF bool) {
 				if retTime.Before(retT) {
 					retT = retTime
 					retF = true
+					return
 				}
 			}
 		}
 	}
+
+	// GPSDateStamp 只有日期
+	for _, entry := range entries {
+		if entry.TagId == 0x001d {
+			//fmt.Printf("IFD-PATH=[%s] ID=(0x%04x) NAME=[%s] COUNT=(%d) TYPE=[%s] VALUE=[%s]\n\n", entry.IfdPath, entry.TagId, entry.TagName, entry.UnitCount, entry.TagTypeName, entry.Formatted)
+			retTime, ok := calDateTime(entry.Formatted)
+			if ok {
+				if retTime.Before(retT) {
+					retT = retTime
+					retF = true
+					return
+				}
+			}
+		}
+	}
+
 	return
 }

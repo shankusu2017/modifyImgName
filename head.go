@@ -12,7 +12,7 @@ type nameFormat struct {
 }
 
 var (
-	formats [4]nameFormat
+	formats [1024]nameFormat
 )
 
 func init() {
@@ -24,10 +24,16 @@ func init() {
 	formats[2].Name = "1709625041"
 	formats[3].Head = "mmexport"
 	formats[3].Name = "1709625041"
+	formats[4].Head = "IMG_"
+	formats[4].Name = "20250211_191223"
 }
 
 func delHead(str string) (string, bool) {
 	for _, format := range formats {
+		/* 所有的模式均已匹配完毕 */
+		if len(format.Head) == 0 {
+			break
+		}
 		ok := strings.HasPrefix(str, format.Head)
 		if ok == false {
 			continue

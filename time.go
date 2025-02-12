@@ -16,7 +16,84 @@ var (
 	exifMtx sync.Mutex
 )
 
+// formats[].Name = "1709625041.jpg"
+// formats[].Name = "20240226153256"
+// formats[].Name = "20250211_191223"
+func datetimeTime(path, name string) (time.Time, bool) {
+	idx := strings.Index(name, ".")
+	if idx == -1 {
+		return time.Now(), false
+	}
+
+	if idx != len("1709625041") && idx != len("20240226153256") && idx != len("20250211_191223") {
+		return time.Now(), false
+	}
+
+	ny := time.Now().Year() + 1 // 完后兼容1年
+
+	if (idx) == len("1709625041") {
+		ut, _ := strconv.Atoi(name[:idx])
+		ft := time.Unix((int64)(ut), 0)
+		if ft.After(time.Date(1975, 1, 1, 0, 0, 0, 0, time.Local)) &&
+			ft.Before(time.Date(ny, 1, 1, 0, 0, 0, 0, time.Local)) {
+			return ft, true
+		} else {
+			return time.Now(), false
+		}
+	} else if idx == len("20240226153256") {
+		yStr := name[0:4]
+		mStr := name[4:6]
+		dStr := name[6:8]
+		hStr := name[8:10]
+		minStr := name[10:12]
+		sStr := name[12:14]
+
+		yN, _ := strconv.Atoi(yStr)
+		mN, _ := strconv.Atoi(mStr)
+		dN, _ := strconv.Atoi(dStr)
+		hN, _ := strconv.Atoi(hStr)
+		minN, _ := strconv.Atoi(minStr)
+		sN, _ := strconv.Atoi(sStr)
+
+		ft := time.Date(yN, (time.Month)(mN), dN, hN, minN, sN, 0, time.Local)
+
+		if ft.After(time.Date(1975, 1, 1, 0, 0, 0, 0, time.Local)) &&
+			ft.Before(time.Date(ny, 1, 1, 0, 0, 0, 0, time.Local)) {
+			return ft, true
+		} else {
+			return time.Now(), false
+		}
+	} else if idx == len("20250211_191223") {
+		yStr := name[0:4]
+		mStr := name[4:6]
+		dStr := name[6:8]
+		hStr := name[9:11]
+		minStr := name[11:13]
+		sStr := name[13:15]
+
+		yN, _ := strconv.Atoi(yStr)
+		mN, _ := strconv.Atoi(mStr)
+		dN, _ := strconv.Atoi(dStr)
+		hN, _ := strconv.Atoi(hStr)
+		minN, _ := strconv.Atoi(minStr)
+		sN, _ := strconv.Atoi(sStr)
+
+		ft := time.Date(yN, (time.Month)(mN), dN, hN, minN, sN, 0, time.Local)
+
+		if ft.After(time.Date(1975, 1, 1, 0, 0, 0, 0, time.Local)) &&
+			ft.Before(time.Date(ny, 1, 1, 0, 0, 0, 0, time.Local)) {
+			return ft, true
+		} else {
+			return time.Now(), false
+		}
+
+	} else {
+		return time.Now(), false
+	}
+}
+
 // IMG_20230204_180346.jpg
+// IMG_20250211_191223.jpg
 // VID_20230101_173306.mp4
 func huaweiPhoneTime(path, name string) (retT time.Time, retF bool) {
 	if strings.HasPrefix(name, "IMG_") && strings.HasSuffix(name, ".jpg") {

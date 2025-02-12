@@ -83,6 +83,14 @@ func hdlFile(path, name string) {
 			return
 		}
 	}
+
+	// 通用的时间格式
+	nTime, ok = datetimeTime(path, name)
+	if ok {
+		hdlRename2Time(path, name, nTime)
+		return
+	}
+
 	// 尝试读取文件系统中的时间和文件名中的时间（取较早的那个）
 	nTime, ok = earlyTime(path, name)
 	if ok {
